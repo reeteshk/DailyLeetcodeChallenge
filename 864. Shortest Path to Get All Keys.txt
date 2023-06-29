@@ -1,0 +1,163 @@
+864. Shortest Path to Get All Keys
+Hard
+1.9K
+92
+Companies
+You are given an m x n grid grid where:
+
+'.' is an empty cell.
+'#' is a wall.
+'@' is the starting point.
+Lowercase letters represent keys.
+Uppercase letters represent locks.
+You start at the starting point and one move consists of walking one space in one of the four cardinal directions. You cannot walk outside the grid, or walk into a wall.
+
+If you walk over a key, you can pick it up and you cannot walk over a lock unless you have its corresponding key.
+
+For some 1 <= k <= 6, there is exactly one lowercase and one uppercase letter of the first k letters of the English alphabet in the grid. This means that there is exactly one key for each lock, and one lock for each key; and also that the letters used to represent the keys and locks were chosen in the same order as the English alphabet.
+
+Return the lowest number of moves to acquire all keys. If it is impossible, return -1.
+
+ 
+
+Example 1:
+
+
+Input: grid = ["@.a..","###.#","b.A.B"]
+Output: 8
+Explanation: Note that the goal is to obtain all the keys not to open all the locks.
+Example 2:
+
+
+Input: grid = ["@..aA","..B#.","....b"]
+Output: 6
+Example 3:
+
+
+Input: grid = ["@Aa"]
+Output: -1
+
+
+Solution
+
+class Solution {
+
+    class Pair{
+        int i;
+        int j;
+        int dis;
+        Pair(int i,int j,int dis)
+        {
+            this.i=i;
+            this.j=j;
+            this.dis=dis;
+        }
+    }
+    public int shortestPathAllKeys(String[] grid) {
+        int row=grid.length;
+        String str=grid[0];
+        String temp[]=str.split("");
+        int col=temp.length;
+        char matrix[][]=new char[row][col];
+        for(int i=0;i<grid.length;i++)
+        {
+            str=grid[i];
+            for(int j=0;j<str.length();j++)
+            {
+                matrix[i][j]=str.charAt(j);
+            }
+        }
+        
+        int lockKey=0;
+        int lock=0;
+        int starti=-1;
+        int startj=-1;
+        int count=0;
+        for(int i=0;i<matrix.length;i++)
+        {
+            for(int j=0;j<matrix[0].length;j++)
+            {
+                if(matrix[i][j]>='a' && matrix[i][j]<='z')
+                {
+                    lockKey++;
+                }
+                if(matrix[i][j]>='A' && matrix[i][j]<='Z')
+                {
+                    lock++;
+                }
+                if(matrix[i][j]=='@')
+                {
+                    starti=i;
+                    startj=j;
+                }
+            }
+        }
+
+        Queue<Pair>q=new LinkedList<>();
+        q.add(new Pair(starti,startj,0));
+        ArrayList<Character>al=new ArrayList<>();
+        int visited[][]=new int[row][col];
+        visited[starti][startj]=1;
+       int maxdis=0;
+        while(!q.isEmpty())
+        {
+            Pair p=q.remove();
+            System.out.println(p.i+"*******"+p.j);
+            int i=p.i;
+            int j=p.j;
+            int dis=p.dis;
+            
+            int xdir[]={-1,0,1,0};
+            int ydir[]={0,-1,0,1};
+            for(int w=0;w<4;w++)
+            {
+                int ax=xdir[w]+i;
+                int ay=ydir[w]+j;
+                if(ax>=0 && ay>=0 && ax<row && ay<col && visited[ax][ay]==0)
+                {
+                    if(matrix[ax][ay]>='a' && matrix[ax][ay]<='z')
+                    {
+                        q.add(new Pair(ax,ay,dis+1));
+                        visited[ax][ay]=1;
+                        maxdis=Math.max(maxdis,dis+1);
+                        al.add(matrix[ax][ay]);
+                        lockKey--;
+                        if(lockKey==0)
+                        {
+                            break;
+                        }
+                    }
+                    else if(matrix[ax][ay]>='A' && matrix[ax][ay]<='Z')
+                    {
+                        if(al.contains(Character.toLowerCase(matrix[ax][ay])))
+                        {
+                            q.add(new Pair(ax,ay,dis+1));
+                            visited[ax][ay]=1;
+                            maxdis=Math.max(maxdis,dis+1);
+                            lock--;
+                        }
+                    }
+                    else if(matrix[ax][ay]=='.')
+                    {
+                        q.add(new Pair(ax,ay,dis+1));
+                        visited[ax][ay]=1;
+                        maxdis=Math.max(maxdis,dis+1);
+                    }
+                    count++;
+                }
+            }
+            if(lockKey==0)
+            {
+                break;
+            }
+        }
+        if(lockKey==0)
+        {
+            return maxdis;
+        }
+        else
+        {
+            return -1;
+        }
+    }
+    }
